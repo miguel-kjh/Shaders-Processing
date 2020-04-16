@@ -4,13 +4,14 @@ precision mediump float;
 
 #define RADIUS    0.0005
 #define Thickness 0.003
-#define LEN       4
+#define LEN       128
 
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
 uniform float u_time;
 uniform float u_vecX[LEN];
 uniform float u_vecY[LEN];
+uniform int u_size;
 uniform bool u_paintPoint;
 
 vec3 colorA = vec3(0.149,0.141,0.912);
@@ -24,6 +25,8 @@ float random (vec2 st) {
 
 vec2 calculePosition(vec2 pos, float speed){
     vec2 result = pos + speed;
+    vec2 st = gl_FragCoord.xy/u_resolution;
+    result = result/st;
     if(result.x < 0.0){
         result.x = 0.0;
     }
@@ -68,10 +71,10 @@ float drawLine(vec2 p1, vec2 p2, vec2 st) {
 }
 
 void drawGraph(vec2 st){
-    for(int index = 0; index < LEN; index++){
+    for(int index = 0; index < u_size; index++){
         float speed = sin(u_time);
         drawCircle(st - (calculePosition(vec2(u_vecX[index], u_vecY[index]), speed)));
-        for(int secondIndex = index + 1; secondIndex < LEN; secondIndex++){
+        for(int secondIndex = index + 1; secondIndex < u_size; secondIndex++){
             gl_FragColor += drawLine(
                 calculePosition(vec2(u_vecX[index],       u_vecY[index]),       speed),
                 calculePosition(vec2(u_vecX[secondIndex], u_vecY[secondIndex]), speed),
@@ -83,10 +86,10 @@ void drawGraph(vec2 st){
 
 void paintLastPoint(vec2 st){
     float speed = sin(u_time);
-    vec2 mouse = u_mouse/u_resolution;
+    vec2 mouse = u_mouse;
     drawCircle(st - mouse);
 
-    for(int index = 0; index < LEN; index++){
+    for(int index = 0; index < u_size; index++){
         gl_FragColor += drawLine(
             mouse,
             calculePosition(vec2(u_vecX[index], u_vecY[index]), speed),
