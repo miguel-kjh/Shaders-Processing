@@ -18,26 +18,36 @@ uniform int   u_typeSpeed;
 vec3 colorA = vec3(0.149,0.141,0.912);
 vec3 colorB = vec3(1.000,0.833,0.224);
 
-float random (vec2 st) {
-    return fract(sin(dot(st.xy,
-                         vec2(12.9898,78.233)))*
-        43758.5453123);
+
+float rand(float n){
+    return fract(sin(n) * 43758.5453123);
 }
 
-float getSpeed(float time){
+float noise(float p){
+	float fl = floor(p);
+    float fc = fract(p);
+	return mix(rand(fl), rand(fl + 1.0), fc);
+}
+
+vec2 getSpeed(float time){
     if(u_typeSpeed == 2){
-        return (fract(u_time/0.45) * 0.86 - 0.5);
+        float v = sin(u_time)/2;
+        return vec2(v);
     }
     if(u_typeSpeed == 3){
-        return (sin((u_time+0.2)/0.12) * 0.5);
+        float vx = sin(u_time)/2 * noise(u_time);
+        float vy = cos(u_time)/2 * noise(u_time);
+        return vec2(vx,vy);
     }
     if(u_typeSpeed == 4){
-        return ((fract( u_time / 0.812 / 0.45 ) * 0.86 + -0.32) * (sin( u_time / 0.812 / 0.2 ) * 0.47)) * 3.691;
+        float vx = sin(u_time)/2;
+        float vy = cos(u_time)/2;
+        return vec2(vx,vy);
     }
-    return 0.0;
+    return vec2(0.0);
 }
 
-vec2 calculePosition(vec2 pos, float speed){
+vec2 calculePosition(vec2 pos, vec2 speed){
     vec2 result = pos + speed;
     if(result.x < 0.0){
         result.x = 0.0;
@@ -84,7 +94,7 @@ float drawLine(vec2 p1, vec2 p2, vec2 st) {
 
 void drawGraph(vec2 st){
     for(int index = 0; index < u_size; index++){
-        float speed = getSpeed(u_time);
+        vec2 speed = getSpeed(u_time);
         drawCircle(st - (calculePosition(vec2(u_vecX[index], u_vecY[index]), speed)));
         for(int secondIndex = index + 1; secondIndex < u_size; secondIndex++){
             gl_FragColor += drawLine(
@@ -97,7 +107,7 @@ void drawGraph(vec2 st){
 }
 
 void paintLastPoint(vec2 st){
-    float speed = getSpeed(u_time);
+    vec2 speed = getSpeed(u_time);
     vec2 mouse = u_mouse/u_resolution;
     drawCircle(st - mouse);
 
@@ -110,7 +120,6 @@ void paintLastPoint(vec2 st){
 }
 
 void main() {
-    //gl_FragColor += vec4(colorA,1.0);
     vec2 st = gl_FragCoord.xy/u_resolution;
     drawGraph(st);
     if(u_paintPoint)paintLastPoint(st);
