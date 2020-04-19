@@ -57,7 +57,7 @@ void mousePressed(){
 
 void mouseReleased(){
   paintPoint = false;
-  graph.addVertx(float(mouseX)/width,(height-float(mouseY))/height);
+  graph.addVertex(float(mouseX)/width,(height-float(mouseY))/height);
 }
 
 void keyPressed(){
@@ -95,7 +95,7 @@ void keyPressed(){
       } 
     }
     if(key == 'd' || key == 'D'){
-      graph.deleteVertx();
+      graph.deleteVertex();
       if(graph.isEmpty()){
         typeSpeed = 1;
         toSeconds = 1000.0; 

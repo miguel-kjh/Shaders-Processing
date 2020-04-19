@@ -1,22 +1,18 @@
 class Graph {
   private ArrayList<PVector> graph;
+  private final int maxVertex = 128;
   
   public Graph(){
      graph = new ArrayList<PVector>();
   }
   
-  public Graph(int num){
-    graph = new ArrayList<PVector>();
-    for(int i = 0; i < num; i++){
-      graph.add(new PVector(random(0.,0.99),random(0.,0.99)));
+  public void addVertex(float x, float y){
+    if(graph.size() < maxVertex){
+      graph.add(new PVector(x,y));
     }
   }
   
-  public void addVertx(float x, float y){
-    graph.add(new PVector(x,y));
-  }
-  
-  public void deleteVertx(){
+  public void deleteVertex(){
     if(graph.size() > 0){
       graph.remove(graph.size()-1);
     }

@@ -3,7 +3,7 @@ precision mediump float;
 #endif
 
 #define RADIUS    0.0005
-#define Thickness 0.001
+#define THICKNESS 0.001
 #define LEN       128
 
 uniform vec2  u_resolution;
@@ -89,7 +89,7 @@ float drawLine(vec2 p1, vec2 p2, vec2 st) {
 
   float h = 2. / c * sqrt( p * ( p - a) * ( p - b) * ( p - c));
 
-  return mix(1.0, 0.0, smoothstep(0.5 * Thickness, 1.5 * Thickness, h));
+  return mix(1.0, 0.0, smoothstep(0.5 * THICKNESS, 1.5 * THICKNESS, h));
 }
 
 void drawGraph(vec2 st){
