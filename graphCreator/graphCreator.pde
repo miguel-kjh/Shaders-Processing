@@ -1,3 +1,5 @@
+//import gifAnimation.*;
+
 PShader sh;
 boolean paintPoint;
 Graph graph;
@@ -6,6 +8,9 @@ float toSeconds;
 StarMenu startMenu;
 Menu keyMenu;
 int maxType;
+//GifMaker gif;
+//final int maxFrame = 10;
+//int countFrame     = 0;
 
 
 void setup(){
@@ -18,6 +23,8 @@ void setup(){
   startMenu   = new StarMenu();
   keyMenu     = new KeyMenu();
   maxType     = 4;
+  /*gif = new GifMaker(this,"animation.gif");
+  gif.setRepeat(0);*/
 }
 
 void draw(){
@@ -29,14 +36,25 @@ void draw(){
     } else {
       keyMenu.prohibitPainting();
     }
+    //setFrame();
     return;
   }
   if(keyMenu.hasToBePainted()){
     keyMenu.paintMenu();
+    //setFrame();
     return;
   }
   defineShader();
+  //setFrame();
 }
+
+/*void setFrame(){
+  if(countFrame == maxFrame){
+      gif.addFrame();
+      countFrame = 0;
+  }
+  countFrame++;
+}*/
 
 void defineShader(){
   shader(sh);

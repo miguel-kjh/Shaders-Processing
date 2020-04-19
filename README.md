@@ -19,7 +19,7 @@ Correo: miguel.medina108@alu.ulpgc.es
 
 ## Introducción
 
-Para esta práctica se ha hecho una integración **GPU-CPU** mediantes shaders de fragmentos y processing. Consiste en representar grafos completos con estructuras simples como líneas y circulos, y darle un movimiento a sus vertices y aristas para observar como se mueve en la pantalla. El objetivo es que el usuario mediante un grafo completo llege a hacer algún tipo de patrón y observe su movimiento.
+Para esta práctica se ha hecho una integración **GPU-CPU** mediantes shaders de fragmentos y processing. Consiste en representar grafos completos con estructuras simples como líneas y círculos, y darle un movimiento a sus vértices y aristas para observar cómo se mueve en la pantalla. El objetivo es que el usuario mediante un grafo completo llegue a hacer algún tipo de patrón y observe su movimiento.
 
 ## Demostración
 <p align="center"> 
@@ -30,11 +30,13 @@ Para esta práctica se ha hecho una integración **GPU-CPU** mediantes shaders d
 
 ## Dependencias
 
-Para poder ejecutar y probar la práctica solamente se necesita clonar este repositorio y tener instalado processing.
+Para poder ejecutar y probar la práctica se necesita clonar este repositorio y tener instalado processing.
 
+- La librería **GifAnimation** para poder reproducir y guardar gifs. Como esta librería no forma parte necesaria para la correcta implementación de la práctica, en el código toda la lógica relacionada con ella se encuentra comentada, además de que afecta al rendimiento de la aplicación.En este [enlace](https://github.com/extrapixel/gif-animation) se encuentra la forma de instalarla.
+ 
 ## Implementación
 
-Para poder hacer un mejor uso de la potencia de la GPU (shaders) se ha dejado a esta los cálculos relativos a la representación de gráficos a a los moviemntos, la CPU (processing) se encarga de la abstracción de la representación y el paso de información.
+Para poder hacer un mejor uso de la potencia de la GPU se ha dejado a esta los cálculos relativos a la representación de gráficos y los movimientos, la CPU se encargará de la abstracción de la representación y el paso de información.
 
 ### Diagrama
 
@@ -79,11 +81,11 @@ void defineShader(){
 
 * *u_size*: la cantidad de nodos.
 
-* *u_time*: el tiempo que ha pasa entre un refreso de pantalla y otro, la variable *toSeconds* nos permitirá controlar la velocidad a la que se mueve el grafo.
+* *u_time*: el tiempo que ha pasado entre un refresco de pantalla y otro, la variable *toSeconds* nos permitirá controlar la velocidad a la que se mueve el grafo.
 
-* *u_paintPoint*: el punto en X e Y de posible nodos que se vaya a colocar.
+* *u_paintPoint*: el punto en X e Y de posibles nodos que se vayan a colocar.
 
-* *u_typeSpeed*: el tipo de velociad ha aplicar.
+* *u_typeSpeed*: el tipo de velocidad ha aplicar.
 
 Asimismo, se dispone de una serie de constantes en GLSL:
 
@@ -93,13 +95,13 @@ Asimismo, se dispone de una serie de constantes en GLSL:
 #define LEN       128
 ```
 
-* *RADIUS*: define el radio de los circulos(nodos).
+* *RADIUS*: define el radio de los círculos(nodos).
 * *THICKNESS*: define el grosor de las líneas.
-* *LEN*: el tamaño máximo de un posible grafo.Como el paso de estructuras dinámicas en GLSL no es posible, se ha defino del tamaño máximo de un grafo a 128 nodos, no obstante dependiendo de la GPU que se tenga, una cantidad de nodos cercana a ese valor se puede llegar a notar en el rendimiento a la hora de aplicar velocidad.
+* *LEN*: el tamaño máximo de un posible grafo.Como el paso de estructuras dinámicas en GLSL no es posible, se ha defino del tamaño máximo de un grafo a 128 nodos, no obstante dependiendo de la GPU que se tenga, una cantidad de nodos cercana a ese valor se puede llegar a notar en el rendimiento a la hora de aplicar una velocidad.
 
 ### Creación de Grafos
 
-La clase Graph actua como representación abstracta de un grafo guardondo solo sus nodos, se pasará a GLSL las posiciones de estos y mediante el siguiente algoritmo se pude representasr un grafo complejos sin muchos recursos.
+La clase Graph actúa como representación abstracta de un grafo guardando solo sus nodos, se pasará a GLSL las posiciones de estos y mediante el siguiente algoritmo se puede representar un grafo completo sin muchos recursos.
 
 ```c++
 
@@ -118,7 +120,7 @@ void drawGraph(vec2 st){
 }
 ```
 
-Como GLSL no nos ofrece ninguna privitiva de dibujo, hay que implementarla. En este caso solo hace falta hacer líneas y circulos, que se pude lograr interpolando con la función *smoothstep*:
+Como GLSL no nos ofrece ninguna primitiva de dibujo, hay que implementarla. En este caso solo hace falta hacer líneas y círculos, que se puede lograr interpolando con la función *smoothstep*:
 
 ```c++
 float circle(in vec2 _st, in float _radius){
@@ -150,7 +152,7 @@ float drawLine(vec2 p1, vec2 p2, vec2 st) {
 }
 ```
 
-Como la aplicación es interactiva, el usuario pude ir creando el grafo mediante el ratón y haciendo clic en la pantalla, por ello se define un posible circulo que sigue la estela del ratón y cuando el usaurio deje de pulsar se crea un nodo del grafo y se definen las aristas.
+Como la aplicación es interactiva, el usuario puede ir creando el grafo usando el ratón y haciendo clic en la pantalla, para ello se define un posible círculo que sigue la estela del ratón y cuando el usuario deje de pulsar se crea un nodo del grafo y se definen las aristas.
 
 ```c++
 void paintLastPoint(vec2 st){
@@ -169,7 +171,7 @@ void paintLastPoint(vec2 st){
 
 ### Movimiento
 
-El movimiento se implemanta gracias a funciones de forma que dan aspecto de animación, es este caso se ha trabajado sobre todo con el **seno** y el **coseno** puesto que estas funciones trigonométricas son muy útiles para animar, dar forma o mezclar valores. La idea de implementación está en que por cada vertice y ariste hay una velocidad en x e y asocidad que depende únicamente del tiempo, si esta velocidad es 0 el grafo estará quieto. Para un mejor control se ha controlado que el grafo no salga de la resolución de la pantalla.
+El movimiento se implementa gracias a funciones de forma que dan aspecto de animación, es este caso se ha trabajado sobre todo con el **seno** y el **coseno** puesto que estas funciones trigonométricas son muy útiles para animar, dar forma o mezclar colores. La idea de implementación está en que por cada vértice y arista hay una velocidad en x e y asociada, que depende únicamente del tiempo, si esta velocidad es 0 el grafo estará quieto. Para un mejor control se ha asegurado que el grafo no salga de la resolución de la pantalla.
 
 ```c++
 vec2 getSpeed(float time){
@@ -209,7 +211,7 @@ vec2 calculePosition(vec2 pos, vec2 speed){
 
 ```
 
-Se ha trabajado con el **seno** y el **coseno** pero también con elementos de aleatoridad y ruido para hacer el movimento menos predecible.
+Se ha trabajado con el **seno** y el **coseno** pero también con elementos de aleatoriedad y ruido para hacer el movimiento menos predecible.
 
 
 ```c++
@@ -239,7 +241,7 @@ float noise(float p){
         </tr>
         <tr>
         <td>D</td>
-        <td>Borra nodos</td>
+        <td>Borrar nodos</td>
         </tr>
         <tr>
         <td>S</td>
@@ -247,7 +249,7 @@ float noise(float p){
         </tr>
         <tr>
         <td>V</td>
-        <td>Cambiar la velociad del grafo</td>
+        <td>Cambiar la velocidad del grafo</td>
         </tr>
         <tr>
         <td>R</td>
