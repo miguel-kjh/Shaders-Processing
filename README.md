@@ -7,18 +7,26 @@ Correo: miguel.medina108@alu.ulpgc.es
 
 ## Indice
 1. [Introducción](#introducción)
-2. [Dependencias](#dependencias)
-3. [Implementación](#implementación) <br>
-    3.1 [Diagrama](#diagrama)<br>
-    3.2 [Paso de parámetros](#paso-de-parametros)<br>
-    3.3 [Creación de Grafos](#creación-de-grafos)<br>
-    3.4 [Movimiento](#movimiento)<br>
-4. [Eventos](#eventos)
-5. [Bibliografía](#bibliografía)
+2. [Demostración](#demostración)
+3. [Dependencias](#dependencias)
+4. [Implementación](#implementación) <br>
+    4.1 [Diagrama](#diagrama)<br>
+    4.2 [Paso de parámetros](#paso-de-parametros)<br>
+    4.3 [Creación de Grafos](#creación-de-grafos)<br>
+    4.4 [Movimiento](#movimiento)<br>
+5. [Eventos](#eventos)
+6. [Bibliografía](#bibliografía)
 
 ## Introducción
 
 Para esta práctica se ha hecho una integración **GPU-CPU** mediantes shaders de fragmentos y processing. Consiste en representar grafos completos con estructuras simples como líneas y circulos, y darle un movimiento a sus vertices y aristas para observar como se mueve en la pantalla. El objetivo es que el usuario mediante un grafo completo llege a hacer algún tipo de patrón y observe su movimiento.
+
+## Demostración
+<p align="center"> 
+   <img src="data/animation.gif" alt="animation"></img>
+   <p align="center">Figura 1: Gif de demostración</p>
+</p>
+
 
 ## Dependencias
 
@@ -36,7 +44,7 @@ Para poder hacer un mejor uso de la potencia de la GPU (shaders) se ha dejado a 
   <img src="data/diagrama.png" alt="uml">
 </p>
 <p align="center">
-  Figura 1: Diagrama UML
+  Figura 2: Diagrama UML
 </p>
 <br>
 
@@ -79,7 +87,7 @@ void defineShader(){
 
 Asimismo, se dispone de una serie de constantes en GLSL:
 
-```C++
+```c++
 #define RADIUS    0.0005
 #define THICKNESS 0.001
 #define LEN       128
@@ -93,7 +101,7 @@ Asimismo, se dispone de una serie de constantes en GLSL:
 
 La clase Graph actua como representación abstracta de un grafo guardondo solo sus nodos, se pasará a GLSL las posiciones de estos y mediante el siguiente algoritmo se pude representasr un grafo complejos sin muchos recursos.
 
-```C++
+```c++
 
 void drawGraph(vec2 st){
     for(int index = 0; index < u_size; index++){
@@ -112,7 +120,7 @@ void drawGraph(vec2 st){
 
 Como GLSL no nos ofrece ninguna privitiva de dibujo, hay que implementarla. En este caso solo hace falta hacer líneas y circulos, que se pude lograr interpolando con la función *smoothstep*:
 
-```C++
+```c++
 float circle(in vec2 _st, in float _radius){
     vec2 dist = _st;
 	return 1.-smoothstep(_radius-(_radius*0.01),
@@ -142,9 +150,111 @@ float drawLine(vec2 p1, vec2 p2, vec2 st) {
 }
 ```
 
+Como la aplicación es interactiva, el usuario pude ir creando el grafo mediante el ratón y haciendo clic en la pantalla, por ello se define un posible circulo que sigue la estela del ratón y cuando el usaurio deje de pulsar se crea un nodo del grafo y se definen las aristas.
+
+```c++
+void paintLastPoint(vec2 st){
+    vec2 speed = getSpeed(u_time);
+    vec2 mouse = u_mouse/u_resolution;
+    drawCircle(st - mouse);
+
+    for(int index = 0; index < u_size; index++){
+        gl_FragColor += drawLine(
+            mouse,
+            calculatePosition(vec2(u_vecX[index], u_vecY[index]), speed),
+            st) * vec4(colorA,1.0);
+    }
+}
+```
+
 ### Movimiento
 
+El movimiento se implemanta gracias a funciones de forma que dan aspecto de animación, es este caso se ha trabajado sobre todo con el **seno** y el **coseno** puesto que estas funciones trigonométricas son muy útiles para animar, dar forma o mezclar valores. La idea de implementación está en que por cada vertice y ariste hay una velocidad en x e y asocidad que depende únicamente del tiempo, si esta velocidad es 0 el grafo estará quieto. Para un mejor control se ha controlado que el grafo no salga de la resolución de la pantalla.
+
+```c++
+vec2 getSpeed(float time){
+    if(u_typeSpeed == 2){
+        float v = sin(u_time)/2;
+        return vec2(v);
+    }
+    if(u_typeSpeed == 3){
+        float vx = sin(u_time)/2 * noise(u_time);
+        float vy = cos(u_time)/2 * noise(u_time);
+        return vec2(vx,vy);
+    }
+    if(u_typeSpeed == 4){
+        float vx = sin(u_time)/2;
+        float vy = cos(u_time)/2;
+        return vec2(vx,vy);
+    }
+    return vec2(0.0);
+}
+
+vec2 calculePosition(vec2 pos, vec2 speed){
+    vec2 result = pos + speed;
+    if(result.x < 0.0){
+        result.x = 0.0;
+    }
+    if(result.x > 0.99){
+        result.x = 0.99;
+    }
+    if(result.y < 0.0){
+        result.y = 0.0;
+    }
+    if(result.y > 0.99){
+        result.y = 0.99;
+    }
+    return result;
+}
+
+```
+
+Se ha trabajado con el **seno** y el **coseno** pero también con elementos de aleatoridad y ruido para hacer el movimento menos predecible.
+
+
+```c++
+float rand(float n){
+    return fract(sin(n) * 43758.5453123);
+}
+
+float noise(float p){
+	float fl = floor(p);
+    float fc = fract(p);
+	return mix(rand(fl), rand(fl + 1.0), fc);
+}
+```
+
 ## Eventos
+<table>
+    <thead>
+        <tr>
+        <th>Tecla</th>
+        <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <td>F</td>
+        <td>Volver a la ventana anterior</td>
+        </tr>
+        <tr>
+        <td>D</td>
+        <td>Borra nodos</td>
+        </tr>
+        <tr>
+        <td>S</td>
+        <td>Parar el grafo</td>
+        </tr>
+        <tr>
+        <td>V</td>
+        <td>Cambiar la velociad del grafo</td>
+        </tr>
+        <tr>
+        <td>R</td>
+        <td>Quitar todos los puntos</td>
+        </tr>
+    </tbody>
+</table>
 
 ## Bibliografía
 

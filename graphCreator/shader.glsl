@@ -47,7 +47,7 @@ vec2 getSpeed(float time){
     return vec2(0.0);
 }
 
-vec2 calculePosition(vec2 pos, vec2 speed){
+vec2 calculatePosition(vec2 pos, vec2 speed){
     vec2 result = pos + speed;
     if(result.x < 0.0){
         result.x = 0.0;
@@ -95,11 +95,11 @@ float drawLine(vec2 p1, vec2 p2, vec2 st) {
 void drawGraph(vec2 st){
     for(int index = 0; index < u_size; index++){
         vec2 speed = getSpeed(u_time);
-        drawCircle(st - (calculePosition(vec2(u_vecX[index], u_vecY[index]), speed)));
+        drawCircle(st - (calculatePosition(vec2(u_vecX[index], u_vecY[index]), speed)));
         for(int secondIndex = index + 1; secondIndex < u_size; secondIndex++){
             gl_FragColor += drawLine(
-                calculePosition(vec2(u_vecX[index],       u_vecY[index]),       speed),
-                calculePosition(vec2(u_vecX[secondIndex], u_vecY[secondIndex]), speed),
+                calculatePosition(vec2(u_vecX[index],       u_vecY[index]),       speed),
+                calculatePosition(vec2(u_vecX[secondIndex], u_vecY[secondIndex]), speed),
                 st) * vec4(colorA,1.0);
         }
     }
@@ -114,7 +114,7 @@ void paintLastPoint(vec2 st){
     for(int index = 0; index < u_size; index++){
         gl_FragColor += drawLine(
             mouse,
-            calculePosition(vec2(u_vecX[index], u_vecY[index]), speed),
+            calculatePosition(vec2(u_vecX[index], u_vecY[index]), speed),
             st) * vec4(colorA,1.0);
     }
 }
