@@ -1,4 +1,4 @@
-# Shaders-Processing!
+# Shaders-Processing
 ![Version](https://img.shields.io/badge/version-1.0-brightgreen.svg?style=flat-square)
 
 ## Autor
